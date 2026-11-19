@@ -11,10 +11,31 @@
 :root[data-theme="dark"]{--board:#1d3b35;--board2:#16302b;--chalk:#f4f8fb;--dim:#b9cfc8}
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--board);color:var(--chalk);font-family:"Patrick Hand","Comic Sans MS",sans-serif;font-size:1.2rem;line-height:1.5;
+body{margin:0;background:var(--board);color:var(--chalk);font-family:"Patrick Hand","Comic Sans MS",sans-serif;font-size:1.2rem;line-height:1.5;position:relative;
   background-image:radial-gradient(circle at 20% 10%,var(--board2),transparent 55%),radial-gradient(circle at 90% 90%,var(--board2),transparent 50%);overflow-x:hidden}
 .paper h1,.paper h2{font-family:"Caveat Brush","Marker Felt",cursive;font-weight:400;margin:0;line-height:1.05}
-.paper{max-width:760px;margin:0 auto;padding:1.2rem 1.2rem 4rem}
+.paper{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:1.2rem 1.2rem 4rem}
+
+/* Chalk-written backdrop on the blackboard (scrolls with the page) */
+.chalk-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  font-family:"Caveat Brush","Marker Felt",cursive;color:var(--chalk);opacity:.14;
+  -webkit-user-select:none;user-select:none}
+.cb{position:absolute;white-space:nowrap;line-height:1.1;text-shadow:0 0 2px rgba(255,255,255,.35)}
+.cb-1{top:5%;left:2%;font-size:2.1rem;transform:rotate(-6deg)}
+.cb-2{top:13%;right:3%;font-size:1.6rem;transform:rotate(5deg)}
+.cb-3{top:37%;left:1%;font-size:2.6rem;transform:rotate(-4deg)}
+.cb-4{top:51%;right:2%;font-size:1.7rem;transform:rotate(7deg)}
+.cb-5{bottom:19%;left:3%;font-size:1.8rem;transform:rotate(-3deg)}
+.cb-6{bottom:9%;right:4%;font-size:2.1rem;transform:rotate(4deg)}
+.cb-7{top:25%;right:5%;font-size:1.35rem;transform:rotate(-8deg)}
+.cb-8{top:67%;left:5%;font-size:1.5rem;transform:rotate(3deg)}
+.cb-9{bottom:31%;right:7%;font-size:2.2rem;transform:rotate(-6deg)}
+.cb-10{top:79%;left:46%;font-size:1.8rem;transform:rotate(-5deg)}
+@media (max-width:640px){
+  .chalk-bg{opacity:.1}
+  .cb-7,.cb-8,.cb-10{display:none}
+  .cb-3,.cb-4,.cb-9{font-size:1.7rem}
+}
 canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
 .bar{border:2px dashed var(--dim);border-radius:14px;margin-bottom:1.5rem;padding:.4rem .9rem .8rem}
 .bar summary{cursor:pointer;color:var(--dim);font-size:1rem;padding:.25rem 0;list-style:none}
@@ -32,12 +53,12 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 .pin{position:absolute;left:50%;top:80%;width:12%;aspect-ratio:2/3;transform:translate(-50%,-50%);border:0;padding:0;background:none;cursor:pointer;filter:drop-shadow(0 6px 6px #0007);
   transition:left 1s cubic-bezier(.3,1.4,.5,1),top 1s cubic-bezier(.3,1.4,.5,1),width 1s;animation:bob 1.6s ease-in-out infinite}
 .pin img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
-.pin.on{left:69%;top:54.1%;width:5.5%;animation:none;filter:drop-shadow(0 3px 3px #0008);cursor:default}
+.pin.on{left:69%;top:60.1%;width:5.5%;animation:none;filter:drop-shadow(0 3px 3px #0008);cursor:default}
 .tag{position:absolute;left:50%;top:82%;transform:translate(-50%,-50%);opacity:0;visibility:hidden;cursor:pointer;margin:0;padding:.1rem .5rem .15rem;background:#fffdf5;color:#1d3b35;border:2px solid var(--gold);border-radius:5px;font-family:"Caveat Brush",cursive;font-size:clamp(.7rem,2.7vw,1rem);line-height:1.2;white-space:nowrap;box-shadow:0 2px 0 #a96d00,0 4px 8px #0006;transition:left 1s cubic-bezier(.3,1.4,.5,1),top 1s cubic-bezier(.3,1.4,.5,1),opacity .4s}
 .tag::before{content:"";display:inline-block;width:.4em;height:.4em;border-radius:50%;background:var(--gold);margin-right:.4rem;box-shadow:inset 0 -1px 0 #a96d00}
 .stage[data-step="1"] .tag{opacity:1;visibility:visible;animation:bob2 1.6s ease-in-out infinite}
 .stage[data-step="2"] .tag{opacity:1;visibility:visible}
-.stage[data-step="2"] .tag.on{left:67%;top:68.9%;animation:none;cursor:grab;touch-action:none}
+.stage[data-step="2"] .tag.on{left:67%;top:74.9%;animation:none;cursor:grab;touch-action:none}
 .stage[data-step="2"] .tag.on:active{cursor:grabbing}
 @keyframes bob2{50%{transform:translate(-50%,-80%) rotate(-5deg)}}
 @keyframes bob{50%{transform:translate(-50%,-62%) rotate(8deg)}}
