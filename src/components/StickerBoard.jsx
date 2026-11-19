@@ -27,24 +27,24 @@ export default function StickerBoard() {
   // Older saved boards used emoji strings; map them to the new icon keys.
   const legacyIcon = (emoji) =>
     ({
-      '🎓': 'cap',
-      '💛': 'heart',
-      '❤️': 'heart',
-      '🍎': 'flower',
-      '📚': 'trophy',
-      '✏️': 'music',
-      '⭐': 'star',
-      '🌟': 'star',
-      '🎉': 'party',
-      '🎊': 'party',
-      '🥳': 'clap',
-      '👏': 'clap',
-      '🏅': 'medal',
-      '✨': 'firework',
-      '💐': 'flower',
-      '🌸': 'flower',
-      '🎈': 'balloon',
-      '🌈': 'rainbow',
+      '\uD83C\uDF93': 'cap',
+      '\uD83D\uDC9B': 'heart',
+      '\u2764\uFE0F': 'heart',
+      '\uD83C\uDF4E': 'flower',
+      '\uD83D\uDCDA': 'trophy',
+      '\u270F\uFE0F': 'music',
+      '\u2B50': 'star',
+      '\uD83C\uDF1F': 'star',
+      '\uD83C\uDF89': 'party',
+      '\uD83C\uDF8A': 'party',
+      '\uD83E\uDD73': 'clap',
+      '\uD83D\uDC4F': 'clap',
+      '\uD83C\uDFC5': 'medal',
+      '\u2728': 'firework',
+      '\uD83D\uDC90': 'flower',
+      '\uD83C\uDF38': 'flower',
+      '\uD83C\uDF88': 'balloon',
+      '\uD83C\uDF08': 'rainbow',
     })[emoji] ?? 'star'
 
   const placed = stickers.map((s) => ({
@@ -86,6 +86,12 @@ export default function StickerBoard() {
             style={{ left: `${s.x}%`, top: `${s.y}%`, transform: `rotate(${s.tilt}deg)` }}
           >
             <StickerIcon name={s.icon} size={54} />
+            <span className="stick-dust" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
           </span>
         ))}
       </div>
@@ -106,7 +112,7 @@ export default function StickerBoard() {
         ))}
       </div>
       <div className="board-actions">
-        <button className="mini" onClick={undo} disabled={stickers.length === 0}>↶ Undo</button>
+        <button className="mini" onClick={undo} disabled={stickers.length === 0}>â†¶ Undo</button>
         <button className="mini" onClick={clear} disabled={stickers.length === 0}>Clear all</button>
       </div>
     </section>

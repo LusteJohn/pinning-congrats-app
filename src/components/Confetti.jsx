@@ -71,16 +71,17 @@ const Confetti = forwardRef(function Confetti(_, ref) {
 
   useImperativeHandle(ref, () => ({
     burst(count = 150, { duration, onDone } = {}) {
-      if (typeof onDone === 'function') {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          // No particles are drawn, so just report the nominal duration.
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (reduced) {
+        // Nothing is drawn; report completion on the next tick so the caller
+        // never waits on a canvas that will not animate.
+        if (typeof onDone === 'function') {
           const t = setTimeout(onDone, duration ?? 400)
           doneTimers.current.push(t)
-          return
         }
-        doneCallbacks.current.push(onDone)
+        return
       }
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+      if (typeof onDone === 'function') doneCallbacks.current.push(onDone)
       const { width, height } = canvasRef.current
       for (let i = 0; i < count; i++) {
         parts.current.push({
@@ -97,13 +98,13 @@ const Confetti = forwardRef(function Confetti(_, ref) {
         })
       }
       if (!raf.current) raf.current = requestAnimationFrame(tick)
-      if (duration) {
-        // Safety net: never hang the caller if the canvas loop stalls.
+      // Safety net: guarantee the callback fires even if the loop stalls.
+      if (typeof onDone === 'function') {
         const t = setTimeout(() => {
           const i = doneCallbacks.current.indexOf(onDone)
           if (i !== -1) doneCallbacks.current.splice(i, 1)
-          if (typeof onDone === 'function' && parts.current.length === 0) onDone()
-        }, duration)
+          onDone()
+        }, duration ?? BURST_SETTLE_MS + 1500)
         doneTimers.current.push(t)
       }
     },

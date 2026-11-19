@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import logo from '../assets/sunn-logo.png'
 
 // Uniform colors, matched to the photo: cream top with orange-gold trim.
@@ -35,7 +35,15 @@ const PINNED_TAG_STYLE = {
   transform: 'translate(-50%, -50%)',
 }
 
+// Zigzag stitch that the needle sews along the lapel before the badge lands.
+const STITCH_PATH = 'M246 140 L251 148 L246 156 L251 164 L246 172 L251 180 L246 188 L251 196'
+
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n))
+
+const reducedMotion = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 // step 0 = nothing pinned, 1 = SUNN logo pinned, 2 = name tag pinned too
 export default function PinStage({ step, name, course, onPin, onTag }) {
@@ -43,6 +51,44 @@ export default function PinStage({ step, name, course, onPin, onTag }) {
   const stageRef = useRef(null)
   const dragRef = useRef(null)
   const [tagPos, setTagPos] = useState(null)
+
+  // Idle life: blinking eyes and a slow breathing bob, paused once pinned.
+  const [blink, setBlink] = useState(false)
+  const [stitching, setStitching] = useState(false)
+  const [landed, setLanded] = useState(false)
+
+  useEffect(() => {
+    if (step >= 1 || reducedMotion()) return
+    let blinkTimer = 0
+    let closeTimer = 0
+    const schedule = () => {
+      blinkTimer = window.setTimeout(() => {
+        setBlink(true)
+        closeTimer = window.setTimeout(() => setBlink(false), 140)
+        schedule()
+      }, 2600 + Math.random() * 3200)
+    }
+    schedule()
+    return () => {
+      clearTimeout(blinkTimer)
+      clearTimeout(closeTimer)
+    }
+  }, [step])
+
+  // Needle-and-thread moment: stitch first, then let the badge land with a squash.
+  const handlePin = () => {
+    if (step !== 0) return
+    if (reducedMotion()) {
+      onPin?.()
+      return
+    }
+    setStitching(true)
+    window.setTimeout(() => {
+      setStitching(false)
+      setLanded(true)
+      onPin?.()
+    }, 900)
+  }
 
   // Once pinned, the name tag can be dragged around the stage.
   const startDrag = (e) => {
@@ -83,8 +129,16 @@ export default function PinStage({ step, name, course, onPin, onTag }) {
       }
     : undefined
 
+  const stageState = [
+    step === 0 ? 'idle' : null,
+    stitching ? 'stitching' : null,
+    landed && !stitching ? 'landed' : null,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <div className="stage" ref={stageRef} data-step={step}>
+    <div className={`stage ${stageState}`} ref={stageRef} data-step={step}>
       <svg viewBox="0 -86 400 386" aria-hidden="true">
         <defs>
           <linearGradient id="clothG" x1="0" y1="0" x2="0" y2="1">
@@ -100,62 +154,70 @@ export default function PinStage({ step, name, course, onPin, onTag }) {
         {/* soft grounding shadow */}
         <ellipse cx="200" cy="292" rx="124" ry="10" fill="#000" opacity=".16" />
 
-        {/* back hair, neck and face */}
-        <g transform="translate(200 72) rotate(-2.5) scale(1.06) translate(-200 -62)">
-          <path
-            d="M148 24 Q146 -44 200 -44 Q254 -44 252 24 L268 106 Q234 96 228 68 L172 68 Q166 96 132 106Z"
-            fill={UNIFORM.hair}
-          />
-          {/* neck */}
-          <path
-            d="M177 64 L223 64 L227 112 Q200 120 173 112Z"
-            fill={UNIFORM.skin}
-          />
-          <path
-            d="M176 68 Q200 84 224 68 L225 80 Q200 94 175 80Z"
-            fill={UNIFORM.skinShade}
-            opacity=".38"
-          />
-          {/* ears */}
-          <ellipse cx="151" cy="28" rx="6.5" ry="10" fill={UNIFORM.skin} />
-          <ellipse cx="249" cy="28" rx="6.5" ry="10" fill={UNIFORM.skin} />
-          {/* face */}
-          <ellipse cx="200" cy="22" rx="48" ry="58" fill="url(#skinG)" />
-          {/* brows */}
-          <path d="M172 15 Q182 10 191 14" stroke={UNIFORM.hair} strokeWidth="3.2" fill="none" strokeLinecap="round" />
-          <path d="M209 14 Q218 10 228 15" stroke={UNIFORM.hair} strokeWidth="3.2" fill="none" strokeLinecap="round" />
+        {/* back hair, neck and face — breathes while idle */}
+        <g className="breathe">
+          <g transform="translate(200 72) rotate(-2.5) scale(1.06) translate(-200 -62)">
+            <path
+              d="M148 24 Q146 -44 200 -44 Q254 -44 252 24 L268 106 Q234 96 228 68 L172 68 Q166 96 132 106Z"
+              fill={UNIFORM.hair}
+            />
+            {/* neck */}
+            <path
+              d="M177 64 L223 64 L227 112 Q200 120 173 112Z"
+              fill={UNIFORM.skin}
+            />
+            <path
+              d="M176 68 Q200 84 224 68 L225 80 Q200 94 175 80Z"
+              fill={UNIFORM.skinShade}
+              opacity=".38"
+            />
+            {/* ears */}
+            <ellipse cx="151" cy="28" rx="6.5" ry="10" fill={UNIFORM.skin} />
+            <ellipse cx="249" cy="28" rx="6.5" ry="10" fill={UNIFORM.skin} />
+            {/* face */}
+            <ellipse cx="200" cy="22" rx="48" ry="58" fill="url(#skinG)" />
+            {/* brows */}
+            <path d="M172 15 Q182 10 191 14" stroke={UNIFORM.hair} strokeWidth="3.2" fill="none" strokeLinecap="round" />
+            <path d="M209 14 Q218 10 228 15" stroke={UNIFORM.hair} strokeWidth="3.2" fill="none" strokeLinecap="round" />
 
-          {/* dark rectangular glasses */}
-          <g fill="none" strokeLinejoin="round">
-            <path d="M159 20 H193 V37 Q193 41 188 41 H164 Q159 41 159 37 Z" fill="#fff" fillOpacity=".14" stroke="none" />
-            <path d="M207 20 H241 V37 Q241 41 236 41 H212 Q207 41 207 37 Z" fill="#fff" fillOpacity=".14" stroke="none" />
+            {/* eyes — lids close on a slow random timer */}
+            <g className={`eyes${blink ? ' blink' : ''}`}>
+              <path d="M163 30 Q171 25 179 30" stroke={UNIFORM.hair} strokeWidth="3" fill="none" strokeLinecap="round" />
+              <path d="M221 30 Q229 25 237 30" stroke={UNIFORM.hair} strokeWidth="3" fill="none" strokeLinecap="round" />
+            </g>
+
+            {/* dark rectangular glasses */}
+            <g fill="none" strokeLinejoin="round">
+              <path d="M159 20 H193 V37 Q193 41 188 41 H164 Q159 41 159 37 Z" fill="#fff" fillOpacity=".14" stroke="none" />
+              <path d="M207 20 H241 V37 Q241 41 236 41 H212 Q207 41 207 37 Z" fill="#fff" fillOpacity=".14" stroke="none" />
+              <path
+                d="M157 18 H194 V37 Q194 42.5 188.5 42.5 H163.5 Q157 42.5 157 37 Z"
+                stroke="#2c2d2e"
+                strokeWidth="4.2"
+              />
+              <path
+                d="M206 18 H243 V37 Q243 42.5 237.5 42.5 H212.5 Q206 42.5 206 37 Z"
+                stroke="#2c2d2e"
+                strokeWidth="4.2"
+              />
+              <path d="M194 21 Q200 18.5 206 21" stroke="#2c2d2e" strokeWidth="4.4" strokeLinecap="round" />
+              <path d="M157 21 L148 23" stroke="#2c2d2e" strokeWidth="3.4" strokeLinecap="round" />
+              <path d="M243 21 L252 23" stroke="#2c2d2e" strokeWidth="3.4" strokeLinecap="round" />
+              <path d="M164 23 L172 36" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" opacity=".45" />
+              <path d="M212 23 L220 36" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" opacity=".45" />
+            </g>
+
+            {/* cheek blush */}
+            <ellipse cx="169" cy="46" rx="8.5" ry="5" fill={UNIFORM.blush} opacity=".32" />
+            <ellipse cx="231" cy="46" rx="8.5" ry="5" fill={UNIFORM.blush} opacity=".32" />
+
+            {/* front hair & highlight */}
             <path
-              d="M157 18 H194 V37 Q194 42.5 188.5 42.5 H163.5 Q157 42.5 157 37 Z"
-              stroke="#2c2d2e"
-              strokeWidth="4.2"
+              d="M152 24 Q148 -38 200 -40 Q252 -38 248 24 Q238 -6 208 -10 Q173 -8 152 24Z"
+              fill={UNIFORM.hair}
             />
-            <path
-              d="M206 18 H243 V37 Q243 42.5 237.5 42.5 H212.5 Q206 42.5 206 37 Z"
-              stroke="#2c2d2e"
-              strokeWidth="4.2"
-            />
-            <path d="M194 21 Q200 18.5 206 21" stroke="#2c2d2e" strokeWidth="4.4" strokeLinecap="round" />
-            <path d="M157 21 L148 23" stroke="#2c2d2e" strokeWidth="3.4" strokeLinecap="round" />
-            <path d="M243 21 L252 23" stroke="#2c2d2e" strokeWidth="3.4" strokeLinecap="round" />
-            <path d="M164 23 L172 36" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" opacity=".45" />
-            <path d="M212 23 L220 36" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" opacity=".45" />
+            <path d="M167 -3 Q185 -22 206 -24" stroke={UNIFORM.hairHi} strokeWidth="4.8" fill="none" strokeLinecap="round" opacity=".5" />
           </g>
-
-          {/* cheek blush */}
-          <ellipse cx="169" cy="46" rx="8.5" ry="5" fill={UNIFORM.blush} opacity=".32" />
-          <ellipse cx="231" cy="46" rx="8.5" ry="5" fill={UNIFORM.blush} opacity=".32" />
-
-          {/* front hair & highlight */}
-          <path
-            d="M152 24 Q148 -38 200 -40 Q252 -38 248 24 Q238 -6 208 -10 Q173 -8 152 24Z"
-            fill={UNIFORM.hair}
-          />
-          <path d="M167 -3 Q185 -22 206 -24" stroke={UNIFORM.hairHi} strokeWidth="4.8" fill="none" strokeLinecap="round" opacity=".5" />
         </g>
 
         {/* arms — curved upper arm, subtle elbow bend, and tapered forearm */}
@@ -270,13 +332,31 @@ export default function PinStage({ step, name, course, onPin, onTag }) {
         <path d="M252 138 Q260 190 252 248" stroke={UNIFORM.shade} strokeWidth="2" fill="none" opacity=".35" strokeLinecap="round" />
         <path d="M124 300 Q132 270 126 242" stroke={UNIFORM.shade} strokeWidth="2" fill="none" opacity=".3" strokeLinecap="round" />
         <path d="M276 300 Q268 270 274 242" stroke={UNIFORM.shade} strokeWidth="2" fill="none" opacity=".3" strokeLinecap="round" />
+
+        {/* needle-and-thread stitch along the lapel */}
+        <g className="stitch" aria-hidden="true">
+          <path className="stitch-thread" d="M262 118 C268 132 258 146 250 152" />
+          <path className="stitch-line" d={STITCH_PATH} />
+          <g className="stitch-needle">
+            <path d="M0 0 L26 -14" stroke="#cfd8e3" strokeWidth="2.4" strokeLinecap="round" />
+            <path d="M26 -14 L32 -17" stroke="#8f9fb2" strokeWidth="2.4" strokeLinecap="round" />
+            <ellipse cx="3.5" cy="-1.6" rx="2" ry="1.4" fill="#7d8a99" transform="rotate(-28 3.5 -1.6)" />
+          </g>
+        </g>
+
+        {/* sparkle burst where the badge lands */}
+        <g className="pin-sparkle" fill="#ffc233" aria-hidden="true">
+          <path d="M252 150 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2Z" />
+          <circle cx="268" cy="146" r="2.4" />
+          <circle cx="242" cy="168" r="2" />
+        </g>
       </svg>
 
       {/* Tag visibility is driven by the stage's data-step attribute in CSS */}
       <button
-        className={`pin${isPinActive ? ' on' : ''}`}
+        className={`pin${isPinActive ? ' on' : ''}${landed ? ' landed' : ''}`}
         style={pinStyle}
-        onClick={onPin}
+        onClick={handlePin}
         aria-label="Pin the SUNN pin on her chest"
       >
         <img
@@ -300,9 +380,12 @@ export default function PinStage({ step, name, course, onPin, onTag }) {
           className="tag-text"
           style={isTagActive ? { display: 'flex', flexDirection: 'column', alignItems: 'center' } : undefined}
         >
-          <span>{name}</span>
-          <small>{course}</small>
+          <span className="tag-line">{name}</span>
+          <small className="tag-line">{course}</small>
         </span>
+        <svg className="tag-scribble" viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M2 16 C12 6 20 18 30 10 C40 2 46 18 56 10 C66 2 74 16 84 8 C91 3 95 12 98 9" />
+        </svg>
       </button>
 
       <div className="hint" style={{ opacity: step >= 2 ? 0 : 1 }}>
