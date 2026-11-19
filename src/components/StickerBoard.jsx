@@ -1,14 +1,22 @@
-import { useState } from 'react'
+import useLocalStorage from '../useLocalStorage.js'
 
 const TRAY = ['🍎', '🎓', '📚', '✏️', '⭐', '💛', '🎉', '🌸']
 const rand = (min, range) => Math.random() * range + min
+const clamp = (n, min, max) => Math.min(max, Math.max(min, n))
 
 export default function StickerBoard() {
-  const [stickers, setStickers] = useState([])
-  const [pick, setPick] = useState('🍎')
+  const [stickers, setStickers] = useLocalStorage('pinning.stickers', [])
+  const [pick, setPick] = useLocalStorage('pinning.pick', '🍎')
 
+  // Keep coordinates inside the board so stickers never clip at the edges.
   const add = (emoji, x, y) =>
-    setStickers((list) => [...list, { id: crypto.randomUUID(), emoji, x, y, tilt: rand(-20, 40) }])
+    setStickers((list) => [
+      ...list,
+      { id: crypto.randomUUID?.() ?? String(Date.now() + Math.random()), emoji, x: clamp(x, 2, 90), y: clamp(y, 2, 86), tilt: rand(-20, 40) },
+    ])
+
+  const undo = () => setStickers((list) => list.slice(0, -1))
+  const clear = () => setStickers([])
 
   const onBoardClick = (e) => {
     const r = e.currentTarget.getBoundingClientRect()
@@ -18,7 +26,7 @@ export default function StickerBoard() {
   const onKey = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
-      add(pick, rand(10, 80), rand(10, 70))
+      add(pick, rand(10, 70), rand(10, 60))
     }
   }
 
@@ -39,14 +47,19 @@ export default function StickerBoard() {
             key={emoji}
             className="e"
             aria-label={`Choose sticker ${emoji}`}
+            aria-pressed={pick === emoji}
             onClick={() => {
               setPick(emoji)
-              add(emoji, rand(10, 80), rand(10, 70))
+              add(emoji, rand(10, 70), rand(10, 60))
             }}
           >
             {emoji}
           </button>
         ))}
+      </div>
+      <div className="board-actions">
+        <button className="mini" onClick={undo} disabled={stickers.length === 0}>↶ Undo</button>
+        <button className="mini" onClick={clear} disabled={stickers.length === 0}>Clear all</button>
       </div>
     </section>
   )
