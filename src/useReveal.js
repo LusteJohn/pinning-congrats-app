@@ -3,7 +3,13 @@ import { useEffect, useRef, useState } from 'react'
 // Fires once when the element first scrolls into view.
 export default function useReveal(threshold = 0.2) {
   const ref = useRef(null)
-  const [shown, setShown] = useState(false)
+  // Reduced-motion users get the content immediately: no reveal transition.
+  const [shown, setShown] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
 
   useEffect(() => {
     const el = ref.current

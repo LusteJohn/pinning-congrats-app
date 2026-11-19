@@ -3,11 +3,19 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 const COLORS = ['#ffc233', '#ff4d6d', '#7fd3ff', '#ff9ecb', '#9dff9d', '#ffffff']
 const EMOJI = ['🎉', '🍎', '⭐', '📚', '✏️', '🎓', '💛', '🌟']
 
-// Full-screen canvas. Call ref.current.burst(count) to fire confetti.
+// Average settle time for one particle: mostly gravity-driven fall speed.
+// Used to estimate when a burst has cleared the viewport.
+export const BURST_SETTLE_MS = 3200
+
+// Full-screen canvas. Call ref.current.burst(count, { duration, onDone }).
+// onDone fires once, when the last burst's particles have settled (or after
+// `duration` ms when reduced motion is on, so callers still get a callback).
 const Confetti = forwardRef(function Confetti(_, ref) {
   const canvasRef = useRef(null)
   const parts = useRef([])
   const raf = useRef(0)
+  const doneTimers = useRef([])
+  const doneCallbacks = useRef([])
 
   useEffect(() => {
     const cv = canvasRef.current
@@ -20,6 +28,8 @@ const Confetti = forwardRef(function Confetti(_, ref) {
     return () => {
       window.removeEventListener('resize', fit)
       cancelAnimationFrame(raf.current)
+      doneTimers.current.forEach(clearTimeout)
+      doneTimers.current = []
     }
   }, [])
 
@@ -48,11 +58,28 @@ const Confetti = forwardRef(function Confetti(_, ref) {
       cx.restore()
     }
     raf.current = parts.current.length ? requestAnimationFrame(tick) : 0
-    if (!raf.current) cx.clearRect(0, 0, cv.width, cv.height)
+    if (!raf.current) {
+      cx.clearRect(0, 0, cv.width, cv.height)
+      // Canvas is idle again: flush any queued completion callbacks.
+      if (doneCallbacks.current.length) {
+        const pending = doneCallbacks.current
+        doneCallbacks.current = []
+        pending.forEach((cb) => cb())
+      }
+    }
   }
 
   useImperativeHandle(ref, () => ({
-    burst(count = 150) {
+    burst(count = 150, { duration, onDone } = {}) {
+      if (typeof onDone === 'function') {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          // No particles are drawn, so just report the nominal duration.
+          const t = setTimeout(onDone, duration ?? 400)
+          doneTimers.current.push(t)
+          return
+        }
+        doneCallbacks.current.push(onDone)
+      }
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
       const { width, height } = canvasRef.current
       for (let i = 0; i < count; i++) {
@@ -70,6 +97,15 @@ const Confetti = forwardRef(function Confetti(_, ref) {
         })
       }
       if (!raf.current) raf.current = requestAnimationFrame(tick)
+      if (duration) {
+        // Safety net: never hang the caller if the canvas loop stalls.
+        const t = setTimeout(() => {
+          const i = doneCallbacks.current.indexOf(onDone)
+          if (i !== -1) doneCallbacks.current.splice(i, 1)
+          if (typeof onDone === 'function' && parts.current.length === 0) onDone()
+        }, duration)
+        doneTimers.current.push(t)
+      }
     },
   }))
 
