@@ -38,11 +38,11 @@ export default function PinStage({ step, name, course, onPin, onTag }) {
         <path d="M244 88 L200 146 L224 154 L272 108Z" fill={UNIFORM.shade} stroke={UNIFORM.trim} strokeWidth="3" strokeLinejoin="round" />
         <rect x="191" y="148" width="18" height="152" fill={UNIFORM.trim} />
         <path d="M191 148 V300 M209 148 V300" stroke={UNIFORM.trimDark} strokeWidth="2" />
-        <circle cx="200" cy="176" r="4.5" fill={UNIFORM.cloth} stroke={UNIFORM.trimDark} strokeWidth="2" />
-        <circle cx="200" cy="216" r="4.5" fill={UNIFORM.cloth} stroke={UNIFORM.trimDark} strokeWidth="2" />
-        <circle cx="200" cy="256" r="4.5" fill={UNIFORM.cloth} stroke={UNIFORM.trimDark} strokeWidth="2" />
+        <circle cx="200" cy="176" r="4" fill={UNIFORM.cloth} stroke={UNIFORM.trimDark} strokeWidth="2" />
+        <circle cx="200" cy="216" r="4" fill={UNIFORM.cloth} stroke={UNIFORM.trimDark} strokeWidth="2" />
+        <circle cx="200" cy="256" r="4" fill={UNIFORM.cloth} stroke={UNIFORM.trimDark} strokeWidth="2" />
         <path d="M126 166 h30 v14 q0 10 -15 14 q-15 -4 -15 -14z" fill={UNIFORM.cloth} stroke={UNIFORM.trim} strokeWidth="2.5" />
-        <circle cx="141" cy="176" r="3.5" fill={UNIFORM.trim} />
+        <circle cx="141" cy="176" r="3" fill={UNIFORM.trim} />
       </svg>
 
       {/* Order matters: the CSS uses sibling selectors (.pin.on ~ .tag) */}

@@ -21,6 +21,7 @@ export default function App() {
   const [lineIdx, setLineIdx] = useState(0)
   const [cardPulse, setCardPulse] = useState(false)
   const fx = useRef(null)
+  const revealRef = useRef(null)
 
   const her = herInput.trim() || 'Future Teacher'
   const me = meInput.trim() || 'Me'
@@ -41,25 +42,11 @@ export default function App() {
   const pinTag = () => {
     if (step !== 1) return
     setStep(2)
-    // Show the final verdict and confetti, then after a pause reveal the report card
+    // Show the final verdict and confetti after the pin lands.
     setTimeout(() => {
       fx.current?.burst(180)
       setVerdict(LINES[0])
     }, 900)
-
-    // Hold the reveal for a few seconds to let the confetti pop fully settle
-    const [holdTimeout, setHoldTimeout] = useState(null)
-    useEffect(() => {
-      if (!holdTimeout && revealed) {
-        const t = setTimeout(() => {
-          revealRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }, 2500)
-        setHoldTimeout(t)
-      }
-      return () => {
-        if (holdTimeout) clearTimeout(holdTimeout)
-      }
-    }, [revealed])
   }
 
   const again = () => {
@@ -77,11 +64,13 @@ export default function App() {
     return () => clearTimeout(t)
   }, [cardPulse])
 
-  // Scroll the reveal into view the moment it appears.
-  const revealRef = useRef(null)
+  // Scroll the reveal into view only after the confetti (900ms burst + settle) has played.
   useEffect(() => {
     if (!revealed) return
-    revealRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const t = setTimeout(() => {
+      revealRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 2500)
+    return () => clearTimeout(t)
   }, [revealed])
 
   return (
@@ -92,11 +81,11 @@ export default function App() {
           <summary>Personalize ✏️</summary>
           <div className="bar-fields">
             <label>
-              Her name
+              Your name
               <input value={herInput} maxLength={30} autoComplete="off" onChange={(e) => setHerInput(e.target.value)} />
             </label>
             <label>
-              Your name
+              His name
               <input value={meInput} maxLength={30} autoComplete="off" onChange={(e) => setMeInput(e.target.value)} />
             </label>
             <label>
@@ -107,7 +96,7 @@ export default function App() {
         </details>
 
         <h1>
-          Congrats, <span>{her}</span>!
+          Congrats, <span>{her}!</span>
         </h1>
         <p className="sub">Pinning and deployment day is here. Tap the SUNN pin to make it official.</p>
 
@@ -123,7 +112,7 @@ export default function App() {
             <Letter to={her} from={me} />
 
             <button className="go" onClick={again}>Celebrate again 🎊</button>
-            <footer>Go get ’em, intern. Dinner is on me after your first week. 🥂</footer>
+            <footer>Go get ’em, intern. Date is already set on December 10th, during Lights On in Sagay City. 🥂</footer>
           </div>
         )}
       </main>
