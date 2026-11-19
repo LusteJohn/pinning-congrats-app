@@ -1,0 +1,68 @@
+:root{
+  --board:#1d3b35; --board2:#16302b; --chalk:#f4f8fb; --dim:#b9cfc8;
+  --gold:#ffc233; --apple:#ff4d6d; --sky:#7fd3ff; --pink:#ff9ecb;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--board:#1d3b35;--board2:#16302b;--chalk:#f4f8fb;--dim:#b9cfc8}}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--board:#e4f4ee;--board2:#d3ece3;--chalk:#17332c;--dim:#40665b;color-scheme:light}}
+:root[data-theme="dark"]{--board:#1d3b35;--board2:#16302b;--chalk:#f4f8fb;--dim:#b9cfc8}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--board);color:var(--chalk);font-family:"Patrick Hand","Comic Sans MS",sans-serif;font-size:1.2rem;line-height:1.5;
+  background-image:radial-gradient(circle at 20% 10%,var(--board2),transparent 55%),radial-gradient(circle at 90% 90%,var(--board2),transparent 50%);overflow-x:hidden}
+h1,h2{font-family:"Caveat Brush","Marker Felt",cursive;font-weight:400;margin:0;line-height:1.05}
+main{max-width:760px;margin:0 auto;padding:1.2rem 1.2rem 4rem}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+.bar{display:flex;flex-wrap:wrap;gap:.6rem;padding:.6rem;border:2px dashed var(--dim);border-radius:14px;margin-bottom:1.5rem}
+.bar label{flex:1 1 200px;display:flex;flex-direction:column;font-size:.95rem;color:var(--dim)}
+.bar input{font:inherit;font-size:1.15rem;padding:.35rem .6rem;border-radius:8px;border:2px solid var(--dim);background:transparent;color:var(--chalk)}
+.bar input:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+h1{font-size:clamp(2.4rem,10vw,5rem);transform:rotate(-2deg);margin:.2rem 0 .4rem}
+h1 span{display:block;color:var(--gold)}
+.sub{color:var(--dim);margin:0 0 1rem}
+.stage{position:relative;aspect-ratio:400/386;max-width:520px;margin:0 auto 1rem;border-radius:22px;background:var(--board2);border:3px solid var(--dim);overflow:hidden}
+.stage svg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;left:50%;top:80%;width:12%;aspect-ratio:2/3;transform:translate(-50%,-50%);border:0;padding:0;background:none;cursor:pointer;filter:drop-shadow(0 6px 6px #0007);
+  transition:left 1s cubic-bezier(.3,1.4,.5,1),top 1s cubic-bezier(.3,1.4,.5,1),width 1s;animation:bob 1.6s ease-in-out infinite}
+.pin img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
+.pin.on{left:69%;top:54.1%;width:5.5%;animation:none;filter:drop-shadow(0 3px 3px #0008);cursor:default}
+.tag{position:absolute;left:50%;top:82%;transform:translate(-50%,-50%);opacity:0;visibility:hidden;cursor:pointer;margin:0;padding:.1rem .5rem .15rem;background:#fffdf5;color:#1d3b35;border:2px solid var(--gold);border-radius:5px;font-family:"Caveat Brush",cursive;font-size:clamp(.7rem,2.7vw,1rem);line-height:1.2;white-space:nowrap;box-shadow:0 2px 0 #a96d00,0 4px 8px #0006;transition:left 1s cubic-bezier(.3,1.4,.5,1),top 1s cubic-bezier(.3,1.4,.5,1),opacity .4s}
+.tag::before{content:"";display:inline-block;width:.4em;height:.4em;border-radius:50%;background:var(--gold);margin-right:.4rem;box-shadow:inset 0 -1px 0 #a96d00}
+.pin.on~.tag{opacity:1;visibility:visible;animation:bob2 1.6s ease-in-out infinite}
+.pin.on~.tag.on{left:67%;top:68.9%;animation:none;cursor:default}
+@keyframes bob2{50%{transform:translate(-50%,-80%) rotate(-5deg)}}
+@keyframes bob{50%{transform:translate(-50%,-62%) rotate(8deg)}}
+.hint{position:absolute;left:0;right:0;bottom:4%;text-align:center;font-size:1.05rem;color:var(--dim);pointer-events:none;transition:opacity .4s}
+.verdict{min-height:2.6rem;text-align:center;font-family:"Caveat Brush",cursive;font-size:1.9rem;color:var(--sky)}
+section{margin-top:3rem}
+h2{font-size:2.6rem;margin-bottom:.8rem}
+.card{background:#fffdf5;color:#2b2b2b;border-radius:6px;padding:1.2rem 1.3rem;box-shadow:6px 6px 0 #0004;transform:rotate(.8deg);background-image:repeating-linear-gradient(transparent 0 33px,#bcd7ee 33px 34px)}
+.card h3{margin:0 0 .6rem;font-family:"Caveat Brush",cursive;font-weight:400;font-size:1.6rem;color:#2f5aa8}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;min-height:34px}
+.grade{font-family:"Caveat Brush",cursive;font-size:1.8rem;color:#d7263d;transform:rotate(-6deg);white-space:nowrap}
+.note{margin:.6rem 0 0;color:#d7263d;font-family:"Caveat Brush",cursive;font-size:1.5rem}
+.board{position:relative;height:260px;border:3px dashed var(--dim);border-radius:18px;overflow:hidden;touch-action:manipulation}
+.board p{position:absolute;inset:0;margin:0;display:grid;place-items:center;color:var(--dim);text-align:center;padding:1rem;pointer-events:none}
+.stick{position:absolute;font-size:2.4rem;animation:pop .35s cubic-bezier(.3,1.8,.5,1)}
+@keyframes pop{from{transform:scale(0) rotate(-40deg)}}
+.tray{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+button.e{font-size:1.9rem;background:transparent;border:2px solid var(--dim);border-radius:12px;padding:.1rem .55rem;cursor:pointer;color:var(--chalk)}
+button.e:active{transform:scale(.9)}
+.letter{border-left:6px solid var(--apple);padding:.3rem 0 .3rem 1.1rem;font-size:1.35rem;white-space:pre-wrap}
+.sign{font-family:"Caveat Brush",cursive;font-size:2rem;color:var(--pink);margin-top:.8rem}
+.go{display:block;margin:2.5rem auto 0;font:inherit;font-family:"Caveat Brush",cursive;font-size:1.9rem;color:#2b1d00;background:var(--gold);border:0;border-radius:999px;padding:.6rem 1.8rem;box-shadow:0 6px 0 #a96d00;cursor:pointer}
+.go:active{transform:translateY(4px);box-shadow:0 2px 0 #a96d00}
+footer{text-align:center;color:var(--dim);margin-top:1.5rem}
+@media (prefers-reduced-motion:reduce){.pin{animation:none}.pin,.stick,.tag{transition:none}.stick{animation:none}}
+
+
+/* Name tag with course line */
+.tag{display:flex;align-items:center;text-align:left}
+.tag-text{display:flex;flex-direction:column}
+.tag small{font-family:"Patrick Hand","Comic Sans MS",sans-serif;font-size:.65em;letter-spacing:.06em;color:#2f5aa8;line-height:1.1}
+
+/* Keep the yellow logo readable on the cream uniform */
+.pin img{filter:drop-shadow(0 0 1px #4a3600) drop-shadow(0 0 1px #4a3600)}
