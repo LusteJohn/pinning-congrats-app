@@ -47,9 +47,9 @@ h2{font-size:2.6rem;margin-bottom:.8rem}
 .card h3{margin:0 0 .6rem;font-family:"Caveat Brush",cursive;font-weight:400;font-size:1.6rem;color:#2f5aa8}
 .row{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;min-height:34px}
 
-/* Report card rows appear one by one */
+/* Report card rows appear one by one (only once the card is on screen) */
 .rows{list-style:none;margin:0;padding:0}
-.rows .row{opacity:0;animation:rowIn .45s ease forwards}
+.rows.show .row{animation:rowIn .45s ease backwards}
 @keyframes rowIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
 .grade{font-family:"Caveat Brush",cursive;font-size:1.8rem;color:#d7263d;transform:rotate(-6deg);white-space:nowrap}
 .note{margin:.6rem 0 0;color:#d7263d;font-family:"Caveat Brush",cursive;font-size:1.5rem}
@@ -65,7 +65,7 @@ button.e:active{transform:scale(.9)}
 .go{display:block;margin:2.5rem auto 0;font:inherit;font-family:"Caveat Brush",cursive;font-size:1.9rem;color:#2b1d00;background:var(--gold);border:0;border-radius:999px;padding:.6rem 1.8rem;box-shadow:0 6px 0 #a96d00;cursor:pointer}
 .go:active{transform:translateY(4px);box-shadow:0 2px 0 #a96d00}
 footer{text-align:center;color:var(--dim);margin-top:1.5rem}
-@media (prefers-reduced-motion:reduce){.pin{animation:none}.pin,.stick,.tag{transition:none}.stick{animation:none}.reveal,.pulse .card{animation:none}.rows .row{animation:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.pin{animation:none}.pin,.stick,.tag{transition:none}.stick{animation:none}.reveal,.pulse .card{animation:none}.rows.show .row{animation:none;opacity:1}}
 
 /* Progressive reveal */
 .reveal{animation:rise .5s ease both}
