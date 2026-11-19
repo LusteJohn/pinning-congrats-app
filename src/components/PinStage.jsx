@@ -1,13 +1,44 @@
+import { useRef, useState } from 'react'
 import logo from '../assets/sunn-logo.png'
 
 // Uniform colors, matched to the photo: cream top with orange-gold trim.
 const UNIFORM = { light: '#f8efd4', cloth: '#f1e3bd', shade: '#e3d1a0', trim: '#e8a23a', trimDark: '#c47f1c', skin: '#e2b08a', skinShade: '#cf9468', hair: '#2b1b17' }
 
+const clamp = (n, min, max) => Math.min(max, Math.max(min, n))
+
 // step 0 = nothing pinned, 1 = SUNN logo pinned, 2 = name tag pinned too
 export default function PinStage({ step, name, course, onPin, onTag }) {
   const hint = step === 0 ? 'tap the SUNN pin 👆' : 'now tap the name tag 👆'
+  const stageRef = useRef(null)
+  const dragRef = useRef(null)
+  const [tagPos, setTagPos] = useState(null)
+
+  // Once pinned, the name tag can be dragged around the stage.
+  const startDrag = (e) => {
+    if (step < 2) return
+    dragRef.current = { id: e.pointerId }
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+  }
+
+  const moveDrag = (e) => {
+    if (!dragRef.current || !stageRef.current) return
+    const r = stageRef.current.getBoundingClientRect()
+    setTagPos({
+      x: clamp(((e.clientX - r.left) / r.width) * 100, 12, 88),
+      y: clamp(((e.clientY - r.top) / r.height) * 100, 12, 88),
+    })
+  }
+
+  const endDrag = (e) => {
+    if (!dragRef.current) return
+    dragRef.current = null
+    e.currentTarget.releasePointerCapture?.(e.pointerId)
+  }
+
+  const tagStyle = tagPos ? { left: `${tagPos.x}%`, top: `${tagPos.y}%`, transition: 'none' } : undefined
+
   return (
-    <div className="stage">
+    <div className="stage" ref={stageRef} data-step={step}>
       <svg viewBox="0 -86 400 386" aria-hidden="true">
         <defs>
           <linearGradient id="clothG" x1="0" y1="0" x2="0" y2="1">
@@ -45,7 +76,7 @@ export default function PinStage({ step, name, course, onPin, onTag }) {
         <circle cx="141" cy="176" r="3" fill={UNIFORM.trim} />
       </svg>
 
-      {/* Order matters: the CSS uses sibling selectors (.pin.on ~ .tag) */}
+      {/* Tag visibility is driven by the stage's data-step attribute in CSS */}
       <button
         className={`pin${step >= 1 ? ' on' : ''}`}
         onClick={onPin}
@@ -56,7 +87,12 @@ export default function PinStage({ step, name, course, onPin, onTag }) {
 
       <button
         className={`tag${step >= 2 ? ' on' : ''}`}
+        style={tagStyle}
         onClick={onTag}
+        onPointerDown={startDrag}
+        onPointerMove={moveDrag}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
         aria-label="Pin the name tag"
       >
         <span className="tag-text">

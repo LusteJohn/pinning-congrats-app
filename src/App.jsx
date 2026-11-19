@@ -76,7 +76,7 @@ export default function App() {
   return (
     <>
       <Confetti ref={fx} />
-      <main>
+      <main className="paper">
         <details className="bar" open>
           <summary>Personalize ✏️</summary>
           <div className="bar-fields">
