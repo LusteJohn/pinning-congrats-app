@@ -1,7 +1,7 @@
 import useLocalStorage from '../useLocalStorage.js'
 import useReveal from '../useReveal.js'
 
-const TRAY = ['🍎', '🎓', '📚', '✏️', '⭐', '💛', '🎉', '🌸']
+const TRAY = ['🍎', '🎓', '📚', '✏️', '⭐', '💛', '🎉', '🌸', '🎊', '🥳', '🏅', '👏', '🌟', '✨', '💐', '🎈']
 
 // A few stickers already on the board so it never looks empty on first load.
 const SEED = [

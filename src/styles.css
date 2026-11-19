@@ -20,17 +20,22 @@ body{margin:0;background:var(--board);color:var(--chalk);font-family:"Patrick Ha
 .chalk-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
   font-family:"Caveat Brush","Marker Felt",cursive;color:var(--chalk);opacity:.14;
   -webkit-user-select:none;user-select:none}
-.cb{position:absolute;white-space:nowrap;line-height:1.1;text-shadow:0 0 2px rgba(255,255,255,.35)}
-.cb-1{top:5%;left:2%;font-size:2.1rem;transform:rotate(-6deg)}
-.cb-2{top:13%;right:3%;font-size:1.6rem;transform:rotate(5deg)}
-.cb-3{top:37%;left:1%;font-size:2.6rem;transform:rotate(-4deg)}
-.cb-4{top:51%;right:2%;font-size:1.7rem;transform:rotate(7deg)}
-.cb-5{bottom:19%;left:3%;font-size:1.8rem;transform:rotate(-3deg)}
-.cb-6{bottom:9%;right:4%;font-size:2.1rem;transform:rotate(4deg)}
-.cb-7{top:25%;right:5%;font-size:1.35rem;transform:rotate(-8deg)}
-.cb-8{top:67%;left:5%;font-size:1.5rem;transform:rotate(3deg)}
-.cb-9{bottom:31%;right:7%;font-size:2.2rem;transform:rotate(-6deg)}
-.cb-10{top:79%;left:46%;font-size:1.8rem;transform:rotate(-5deg)}
+.cb{position:absolute;white-space:nowrap;line-height:1.1;text-shadow:0 0 2px rgba(255,255,255,.35);animation:cbFade 6s ease-in-out infinite}
+@keyframes cbFade{0%,100%{opacity:.15}50%{opacity:.85}}
+@keyframes cbFadeTilt{0%,100%{opacity:.15;transform:rotate(var(--tilt)) scale(1)}50%{opacity:.85;transform:rotate(var(--tilt)) scale(1.04)}}
+.cb:nth-child(even){animation-duration:7.5s;animation-delay:-2s}
+.cb:nth-child(3n){animation-duration:9s;animation-delay:-4s}
+.cb:nth-child(4n){animation-duration:5s;animation-delay:-1s}
+.cb-1{top:5%;left:2%;font-size:2.1rem;--tilt:-6deg;animation-name:cbFadeTilt}
+.cb-2{top:13%;right:3%;font-size:1.6rem;--tilt:5deg;animation-name:cbFadeTilt}
+.cb-3{top:37%;left:1%;font-size:2.6rem;--tilt:-4deg;animation-name:cbFadeTilt}
+.cb-4{top:51%;right:2%;font-size:1.7rem;--tilt:7deg;animation-name:cbFadeTilt}
+.cb-5{bottom:19%;left:3%;font-size:1.8rem;--tilt:-3deg;animation-name:cbFadeTilt}
+.cb-6{bottom:9%;right:4%;font-size:2.1rem;--tilt:4deg;animation-name:cbFadeTilt}
+.cb-7{top:25%;right:5%;font-size:1.35rem;--tilt:-8deg;animation-name:cbFadeTilt}
+.cb-8{top:67%;left:5%;font-size:1.5rem;--tilt:3deg;animation-name:cbFadeTilt}
+.cb-9{bottom:31%;right:7%;font-size:2.2rem;--tilt:-6deg;animation-name:cbFadeTilt}
+.cb-10{top:79%;left:46%;font-size:1.8rem;--tilt:-5deg;animation-name:cbFadeTilt}
 @media (max-width:640px){
   .chalk-bg{opacity:.1}
   .cb-7,.cb-8,.cb-10{display:none}
@@ -106,7 +111,7 @@ button.e:active{transform:scale(.9)}
 .go{display:block;margin:2.5rem auto 0;font:inherit;font-family:"Caveat Brush",cursive;font-size:1.9rem;color:#2b1d00;background:var(--gold);border:0;border-radius:999px;padding:.6rem 1.8rem;box-shadow:0 6px 0 #a96d00;cursor:pointer}
 .go:active{transform:translateY(4px);box-shadow:0 2px 0 #a96d00}
 .paper footer{text-align:center;color:var(--dim);margin-top:1.5rem}
-@media (prefers-reduced-motion:reduce){.pin{animation:none}.pin,.stick,.tag{transition:none}.stick{animation:none}.reveal,.pulse .card{animation:none}.rows.show .row{animation:none;opacity:1}.enter{opacity:1;transform:none;transition:none}}
+@media (prefers-reduced-motion:reduce){.pin{animation:none}.pin,.stick,.tag{transition:none}.stick{animation:none}.reveal,.pulse .card{animation:none}.rows.show .row{animation:none;opacity:1}.enter{opacity:1;transform:none;transition:none}.cb{animation:none}}
 
 /* Progressive reveal */
 .reveal{animation:rise .5s ease both}
