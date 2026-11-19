@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Confetti from './components/Confetti.jsx'
 import PinStage from './components/PinStage.jsx'
 import ReportCard from './components/ReportCard.jsx'
 import StickerBoard from './components/StickerBoard.jsx'
 import Letter from './components/Letter.jsx'
+import useLocalStorage from './useLocalStorage.js'
 
 const LINES = [
   'Officially pinned and deployed! 🎓',
@@ -12,17 +13,21 @@ const LINES = [
 ]
 
 export default function App() {
-  const [herInput, setHerInput] = useState('Zenneth Cellon')
-  const [meInput, setMeInput] = useState('My Programmer')
-  const [courseInput, setCourseInput] = useState('BTLED-ICT')
+  const [herInput, setHerInput] = useLocalStorage('pinning.her', 'Zenneth Cellon')
+  const [meInput, setMeInput] = useLocalStorage('pinning.me', 'My Programmer')
+  const [courseInput, setCourseInput] = useLocalStorage('pinning.course', 'BTLED-ICT')
   const [step, setStep] = useState(0)
   const [verdict, setVerdict] = useState('')
   const [lineIdx, setLineIdx] = useState(0)
+  const [cardPulse, setCardPulse] = useState(false)
   const fx = useRef(null)
 
   const her = herInput.trim() || 'Future Teacher'
   const me = meInput.trim() || 'Me'
   const course = courseInput.trim() || 'BTLED-ICT'
+
+  // Reveal the rest of the story once the pinning ceremony is complete.
+  const revealed = step >= 2
 
   const pinLogo = () => {
     if (step !== 0) return
@@ -36,37 +41,70 @@ export default function App() {
   const pinTag = () => {
     if (step !== 1) return
     setStep(2)
+    // Show the final verdict and confetti, then after a pause reveal the report card
     setTimeout(() => {
       fx.current?.burst(180)
       setVerdict(LINES[0])
     }, 900)
+
+    // Hold the reveal for a few seconds to let the confetti pop fully settle
+    const [holdTimeout, setHoldTimeout] = useState(null)
+    useEffect(() => {
+      if (!holdTimeout && revealed) {
+        const t = setTimeout(() => {
+          revealRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }, 2500)
+        setHoldTimeout(t)
+      }
+      return () => {
+        if (holdTimeout) clearTimeout(holdTimeout)
+      }
+    }, [revealed])
   }
 
   const again = () => {
     const next = (lineIdx + 1) % LINES.length
-    fx.current?.burst(220)
+    fx.current?.burst(120)
     setLineIdx(next)
     setVerdict(LINES[next])
+    setCardPulse(true)
   }
+
+  // Clear the pulse flag so it can retrigger on the next press.
+  useEffect(() => {
+    if (!cardPulse) return
+    const t = setTimeout(() => setCardPulse(false), 700)
+    return () => clearTimeout(t)
+  }, [cardPulse])
+
+  // Scroll the reveal into view the moment it appears.
+  const revealRef = useRef(null)
+  useEffect(() => {
+    if (!revealed) return
+    revealRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [revealed])
 
   return (
     <>
       <Confetti ref={fx} />
       <main>
-        <div className="bar">
-          <label>
-            Her name
-            <input value={herInput} maxLength={30} autoComplete="off" onChange={(e) => setHerInput(e.target.value)} />
-          </label>
-          <label>
-            Your name
-            <input value={meInput} maxLength={30} autoComplete="off" onChange={(e) => setMeInput(e.target.value)} />
-          </label>
-          <label>
-            Course
-            <input value={courseInput} maxLength={20} autoComplete="off" onChange={(e) => setCourseInput(e.target.value)} />
-          </label>
-        </div>
+        <details className="bar" open>
+          <summary>Personalize ✏️</summary>
+          <div className="bar-fields">
+            <label>
+              Her name
+              <input value={herInput} maxLength={30} autoComplete="off" onChange={(e) => setHerInput(e.target.value)} />
+            </label>
+            <label>
+              Your name
+              <input value={meInput} maxLength={30} autoComplete="off" onChange={(e) => setMeInput(e.target.value)} />
+            </label>
+            <label>
+              Course
+              <input value={courseInput} maxLength={20} autoComplete="off" onChange={(e) => setCourseInput(e.target.value)} />
+            </label>
+          </div>
+        </details>
 
         <h1>
           Congrats, <span>{her}</span>!
@@ -76,12 +114,18 @@ export default function App() {
         <PinStage step={step} name={her} course={course} onPin={pinLogo} onTag={pinTag} />
         <div className="verdict" aria-live="polite">{verdict}</div>
 
-        <ReportCard name={her} />
-        <StickerBoard />
-        <Letter to={her} from={me} />
+        {revealed && (
+          <div ref={revealRef} className="reveal">
+            <div className={cardPulse ? 'pulse' : undefined}>
+              <ReportCard name={her} />
+            </div>
+            <StickerBoard />
+            <Letter to={her} from={me} />
 
-        <button className="go" onClick={again}>Celebrate again 🎊</button>
-        <footer>Go get ’em, intern. Dinner is on me after your first week. 🥂</footer>
+            <button className="go" onClick={again}>Celebrate again 🎊</button>
+            <footer>Go get ’em, intern. Dinner is on me after your first week. 🥂</footer>
+          </div>
+        )}
       </main>
     </>
   )

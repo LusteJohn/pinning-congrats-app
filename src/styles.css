@@ -16,7 +16,11 @@ body{margin:0;background:var(--board);color:var(--chalk);font-family:"Patrick Ha
 h1,h2{font-family:"Caveat Brush","Marker Felt",cursive;font-weight:400;margin:0;line-height:1.05}
 main{max-width:760px;margin:0 auto;padding:1.2rem 1.2rem 4rem}
 canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
-.bar{display:flex;flex-wrap:wrap;gap:.6rem;padding:.6rem;border:2px dashed var(--dim);border-radius:14px;margin-bottom:1.5rem}
+.bar{border:2px dashed var(--dim);border-radius:14px;margin-bottom:1.5rem;padding:.4rem .9rem .8rem}
+.bar summary{cursor:pointer;color:var(--dim);font-size:1rem;padding:.25rem 0;list-style:none}
+.bar summary::-webkit-details-marker{display:none}
+.bar summary::marker{content:""}
+.bar-fields{display:flex;flex-wrap:wrap;gap:.6rem;padding-top:.6rem}
 .bar label{flex:1 1 200px;display:flex;flex-direction:column;font-size:.95rem;color:var(--dim)}
 .bar input{font:inherit;font-size:1.15rem;padding:.35rem .6rem;border-radius:8px;border:2px solid var(--dim);background:transparent;color:var(--chalk)}
 .bar input:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -42,6 +46,11 @@ h2{font-size:2.6rem;margin-bottom:.8rem}
 .card{background:#fffdf5;color:#2b2b2b;border-radius:6px;padding:1.2rem 1.3rem;box-shadow:6px 6px 0 #0004;transform:rotate(.8deg);background-image:repeating-linear-gradient(transparent 0 33px,#bcd7ee 33px 34px)}
 .card h3{margin:0 0 .6rem;font-family:"Caveat Brush",cursive;font-weight:400;font-size:1.6rem;color:#2f5aa8}
 .row{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;min-height:34px}
+
+/* Report card rows appear one by one */
+.rows{list-style:none;margin:0;padding:0}
+.rows .row{opacity:0;animation:rowIn .45s ease forwards}
+@keyframes rowIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
 .grade{font-family:"Caveat Brush",cursive;font-size:1.8rem;color:#d7263d;transform:rotate(-6deg);white-space:nowrap}
 .note{margin:.6rem 0 0;color:#d7263d;font-family:"Caveat Brush",cursive;font-size:1.5rem}
 .board{position:relative;height:260px;border:3px dashed var(--dim);border-radius:18px;overflow:hidden;touch-action:manipulation}
@@ -56,7 +65,21 @@ button.e:active{transform:scale(.9)}
 .go{display:block;margin:2.5rem auto 0;font:inherit;font-family:"Caveat Brush",cursive;font-size:1.9rem;color:#2b1d00;background:var(--gold);border:0;border-radius:999px;padding:.6rem 1.8rem;box-shadow:0 6px 0 #a96d00;cursor:pointer}
 .go:active{transform:translateY(4px);box-shadow:0 2px 0 #a96d00}
 footer{text-align:center;color:var(--dim);margin-top:1.5rem}
-@media (prefers-reduced-motion:reduce){.pin{animation:none}.pin,.stick,.tag{transition:none}.stick{animation:none}}
+@media (prefers-reduced-motion:reduce){.pin{animation:none}.pin,.stick,.tag{transition:none}.stick{animation:none}.reveal,.pulse .card{animation:none}.rows .row{animation:none;opacity:1}}
+
+/* Progressive reveal */
+.reveal{animation:rise .5s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* Report card pulse on "Celebrate again" */
+.pulse .card{animation:cardPulse .7s ease}
+@keyframes cardPulse{0%,100%{transform:rotate(.8deg) scale(1)}40%{transform:rotate(-1.5deg) scale(1.03)}}
+
+/* Sticker board actions */
+.board-actions{display:flex;gap:.6rem;margin-top:.6rem}
+button.mini{font:inherit;font-size:1rem;background:transparent;border:2px solid var(--dim);border-radius:10px;padding:.25rem .8rem;color:var(--chalk);cursor:pointer}
+button.mini:disabled{opacity:.4;cursor:not-allowed}
+button.e[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
 
 
 /* Name tag with course line */

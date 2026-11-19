@@ -1,5 +1,5 @@
 const ROWS = [
-  ['Patience with tiny humans', 'A+++'],
+  ['Patience with tiny humans, in a way.', 'A+++'],
   ['Lesson plans at late night', 'A+'],
   ['Surviving every exam and requirement', 'A+'],
   ['Explaining it one more time, kindly', 'A++'],
@@ -14,12 +14,14 @@ export default function ReportCard({ name }) {
       <h2>Your final report card</h2>
       <div className="card">
         <h3>Student: {name}</h3>
-        {ROWS.map(([subject, grade]) => (
-          <div className="row" key={subject}>
-            <span>{subject}</span>
-            <span className="grade">{grade}</span>
-          </div>
-        ))}
+        <ul className="rows">
+          {ROWS.map(([subject, grade], i) => (
+            <li className="row" key={subject} style={{ animationDelay: `${i * 0.35}s` }}>
+              <span>{subject}</span>
+              <span className="grade">{grade}</span>
+            </li>
+          ))}
+        </ul>
         <p className="note">Teacher’s comment: ready for deployment. Passed with flying colours. 🎉</p>
       </div>
     </section>
