@@ -140,19 +140,18 @@ button.e[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 2px var(
 /* Bouquet illustration in the letter section */
 .bouquet{position:relative;max-width:420px;margin:.2rem auto 1.4rem;text-align:center}
 .bouquet svg{display:block;width:100%;height:auto;overflow:visible}
-.bouquet-blooms,.bouquet-bow,.bouquet-sparkle{transform-origin:196px 190px;opacity:0;transform:scale(.6) rotate(-6deg);transition:opacity .6s ease,transform .7s cubic-bezier(.3,1.5,.5,1)}
-.bouquet[data-shown="true"] .bouquet-blooms,.bouquet[data-shown="true"] .bouquet-bow,.bouquet[data-shown="true"] .bouquet-sparkle{opacity:1;transform:scale(1) rotate(0)}
-.bouquet[data-shown="true"] .bouquet-bow{transition-delay:.45s}
-.bouquet[data-shown="true"] .bouquet-sparkle{transition-delay:.65s}
-.bouquet .bloom{transform-box:fill-box;transform-origin:50% 50%;opacity:0}
-.bouquet[data-shown="true"] .bloom{animation:bloomIn .6s cubic-bezier(.3,1.6,.5,1) both}
+.bouquet-bow,.bouquet-sparkle{opacity:0;transition:opacity .6s ease}
+.bouquet[data-shown="true"] .bouquet-bow,.bouquet[data-shown="true"] .bouquet-sparkle{opacity:1}
+.bouquet[data-shown="true"] .bouquet-bow{transition-delay:.9s}
+.bouquet[data-shown="true"] .bouquet-sparkle{transition-delay:1.1s}
+.bouquet .bloom{transform-box:fill-box;transform-origin:50% 50%}
 .bouquet-sparkle path,.bouquet-sparkle circle{animation:twinkle 2.8s ease-in-out infinite}
 .bouquet-sparkle circle:nth-of-type(2){animation-delay:-1.1s}
 .bouquet-sparkle circle:nth-of-type(3){animation-delay:-2s}
 .bouquet-cap{margin:.7rem 0 0;font-family:"Caveat Brush",cursive;font-size:1.5rem;color:var(--pink)}
 @keyframes bloomIn{from{opacity:0;transform:scale(.2) rotate(-25deg)}to{opacity:1;transform:scale(1) rotate(0)}}
 @keyframes twinkle{0%,100%{opacity:.25}50%{opacity:1}}
-@media (prefers-reduced-motion:reduce){.bouquet-blooms,.bouquet-bow,.bouquet-sparkle,.bouquet .bloom{opacity:1;transform:none;transition:none;animation:none}.bouquet-sparkle path,.bouquet-sparkle circle{animation:none}}
+@media (prefers-reduced-motion:reduce){.bouquet-bow,.bouquet-sparkle{opacity:1;transition:none}.bouquet-sparkle path,.bouquet-sparkle circle{animation:none}}
 /* Animated SVG celebration stickers */
 .sb-icon{display:block;overflow:visible}
 .sb-tw{transform-box:fill-box;transform-origin:center;animation:sbTwinkle 2s ease-in-out infinite}
@@ -256,4 +255,112 @@ button.e[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 2px var(
   .seal-badge,.seal.done .seal-badge{animation:none}
   .seal-fill{transition:none}
   .sound-toggle{transition:none}
+}
+/* ---------- PinStage: idle life ---------- */
+.breathe{transform-box:fill-box;transform-origin:50% 92%;animation:psBreathe 4.4s ease-in-out infinite}
+.stage[data-step="1"] .breathe,.stage[data-step="2"] .breathe{animation-duration:6s}
+@keyframes psBreathe{0%,100%{transform:scaleY(1) translateY(0)}50%{transform:scaleY(1.012) translateY(-1.2px)}}
+.eyes{transform-box:fill-box;transform-origin:center;transition:transform .09s ease-out}
+.eyes.blink{transform:scaleY(.08)}
+
+/* ---------- PinStage: needle + thread stitch ---------- */
+.stitch{opacity:0}
+.stage.stitching .stitch{opacity:1}
+.stitch-thread{fill:none;stroke:#e9e3d2;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:40;stroke-dashoffset:40}
+.stage.stitching .stitch-thread{animation:psThread .5s ease-out forwards}
+.stitch-line{fill:none;stroke:#f7e6bd;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.stage.stitching .stitch-line{animation:psStitch .42s .34s linear forwards}
+.stitch-needle{transform-box:fill-box;transform-origin:100% 100%;opacity:0}
+.stage.stitching .stitch-needle{animation:psNeedle .9s ease-in-out forwards}
+@keyframes psThread{to{stroke-dashoffset:0}}
+@keyframes psStitch{to{stroke-dashoffset:0}}
+@keyframes psNeedle{
+  0%{opacity:0;transform:translate(4px,-10px) rotate(-8deg)}
+  15%{opacity:1}
+  70%{opacity:1;transform:translate(-2px,58px) rotate(0)}
+  100%{opacity:0;transform:translate(-6px,72px) rotate(6deg)}
+}
+
+/* ---------- PinStage: badge landing (squash & stretch) ---------- */
+.pin.landed{animation:psLand .62s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes psLand{
+  0%{transform:translate(-50%,-50%) scale(1.9,1.35) rotate(-10deg);opacity:.2}
+  45%{transform:translate(-50%,-50%) scale(.82,1.2) rotate(4deg);opacity:1}
+  70%{transform:translate(-50%,-50%) scale(1.12,.9) rotate(-2deg)}
+  100%{transform:translate(-50%,-50%) scale(1,1) rotate(0)}
+}
+.pin-sparkle{opacity:0;transform-box:fill-box;transform-origin:center}
+.stage.landed .pin-sparkle{animation:psSparkle .8s .12s ease-out forwards}
+@keyframes psSparkle{0%{opacity:0;transform:scale(.4)}40%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
+
+/* ---------- PinStage: name tag scribble handoff ---------- */
+.tag{position:relative}
+.tag-scribble{position:absolute;inset:auto 0 -2px 0;width:100%;height:34%;pointer-events:none;opacity:0}
+.tag-scribble path{fill:none;stroke:#2f5aa8;stroke-width:2.2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}
+.stage[data-step="2"] .tag-scribble{opacity:.85}
+.stage[data-step="2"] .tag-scribble path{animation:psScribble .75s .35s ease-out forwards}
+.tag .tag-line{display:inline-block;clip-path:inset(0 100% 0 0)}
+.stage[data-step="2"] .tag .tag-line{animation:psWrite .6s cubic-bezier(.4,0,.2,1) forwards}
+.tag .tag-line:nth-child(2){animation-delay:.18s}
+@keyframes psScribble{to{stroke-dashoffset:0}}
+@keyframes psWrite{to{clip-path:inset(0 0 0 0)}}
+
+/* ---------- ReportCard: cap + sweeping tassel ---------- */
+.card-cap{transform-box:fill-box;transform-origin:50% 100%;animation:rcCapToss 3.4s ease-in-out infinite}
+.card-tassel{transform-box:fill-box;transform-origin:top center;animation:rcTasselSweep 2.6s ease-in-out infinite}
+@keyframes rcCapToss{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-2.5px) rotate(2deg)}}
+@keyframes rcTasselSweep{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(16deg)}}
+
+/* ---------- Letter: bouquet choreography ---------- */
+.bouquet-stems path{stroke-dasharray:1;stroke-dashoffset:1}
+.bouquet[data-shown="true"] .bouquet-stems path{animation:bloomStem .5s ease-out both}
+.bouquet[data-shown="true"] .bouquet-leaves{animation:bloomLeaves .5s .3s ease-out both}
+.bouquet[data-shown="true"] .bouquet-wrap{animation:bloomWrap .45s .2s ease-out both}
+.bouquet[data-shown="true"] .bloom-petals{animation:bloomPetal .55s cubic-bezier(.3,1.6,.5,1) both}
+.bouquet[data-shown="true"] .bow-tail{animation:bowTail 2.4s 1.4s ease-in-out infinite}
+@keyframes bloomStem{to{stroke-dashoffset:0}}
+@keyframes bloomLeaves{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes bloomWrap{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes bloomPetal{from{opacity:0;transform:scale(.15) rotate(-28deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes bowTail{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.bouquet-leaves,.bouquet-wrap{transform-box:fill-box;transform-origin:center}
+.bloom-petals{transform-box:fill-box;transform-origin:50% 50%;opacity:0}
+.bow-tail{transform-box:fill-box;transform-origin:top center}
+
+/* ---------- Chalk margin doodles ---------- */
+.chalk-doodles{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.cdoodle{position:absolute;height:auto;opacity:0;transition:opacity .3s ease}
+.chalk-doodles.drawn .cdoodle{opacity:.22}
+.cdoodle path{fill:none;stroke:var(--chalk);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.chalk-doodles.drawn .cdoodle path{animation:chalkDraw .9s ease-out both}
+@keyframes chalkDraw{to{stroke-dashoffset:0}}
+@media (max-width:900px){.chalk-doodles{display:none}}
+
+/* ---------- Sticker landing: bounce + dust puff ---------- */
+.stick{animation:stickDrop .5s cubic-bezier(.34,1.6,.64,1) both}
+@keyframes stickDrop{
+  0%{opacity:0;transform:scale(.35)}
+  55%{opacity:1;transform:scale(1.12)}
+  78%{transform:scale(.94)}
+  100%{opacity:1;transform:scale(1)}
+}
+.stick-dust{position:absolute;left:50%;bottom:-2px;width:0;height:0;pointer-events:none}
+.stick-dust i{position:absolute;left:0;top:0;width:9px;height:9px;border-radius:50%;background:rgba(244,248,251,.5);opacity:0;animation:dustPuff .6s ease-out .12s both}
+.stick-dust i:nth-child(1){--dx:-20px;--dy:-6px}
+.stick-dust i:nth-child(2){--dx:-9px;--dy:-12px}
+.stick-dust i:nth-child(3){--dx:9px;--dy:-11px}
+.stick-dust i:nth-child(4){--dx:20px;--dy:-4px}
+@keyframes dustPuff{
+  0%{opacity:.7;transform:translate(0,0) scale(.4)}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.25)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .breathe,.eyes,.stitch-thread,.stitch-line,.stitch-needle,.pin.landed,.pin-sparkle,.tag-scribble path,.tag .tag-line,.card-cap,.card-tassel,.bow-tail,.stick,.stick-dust i{animation:none;transition:none}
+  .eyes.blink{transform:none}
+  .stitch,.pin-sparkle,.tag-scribble{opacity:0}
+  .tag .tag-line{clip-path:none}
+  .bouquet[data-shown="true"] .bouquet-stems path,.bouquet[data-shown="true"] .bouquet-leaves,.bouquet[data-shown="true"] .bouquet-wrap,.bouquet[data-shown="true"] .bloom-petals{animation:none;opacity:1;stroke-dashoffset:0}
+  .cdoodle path{animation:none;stroke-dashoffset:0}
+  .stick-dust{display:none}
 }

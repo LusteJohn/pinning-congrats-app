@@ -72,13 +72,22 @@ export default function ReportCard({ name }) {
     <section ref={ref} className={`sec-card enter${shown ? ' in' : ''}`}>
       <div className="card-head">
         <h2>Your final report card</h2>
-        <svg className="card-medal" viewBox="0 0 60 60" aria-hidden="true">
-          <path d="M20 8 L27 30 L33 30 L40 8 Z" fill="#ff4d6d" stroke="#c9314c" strokeWidth="1.4" strokeLinejoin="round" />
-          <path d="M40 8 L33 30 L27 30 L20 8 Z" fill="#2f5aa8" opacity=".85" />
+        <svg className="card-medal" viewBox="0 0 60 70" aria-hidden="true">
+          {/* graduation cap resting above the medal */}
+          <g className="card-cap">
+            <path d="M30 4 L54 14 L30 24 L6 14 Z" fill="#2f5aa8" stroke="#1d3f7d" strokeWidth="1.6" strokeLinejoin="round" />
+            <path d="M19 19 V27 Q30 33 41 27 V19" fill="#2f5aa8" stroke="#1d3f7d" strokeWidth="1.6" strokeLinejoin="round" />
+            <path d="M30 14 L30 9" stroke="#c47f1c" strokeWidth="1.4" strokeLinecap="round" />
+            <circle cx="30" cy="8" r="2" fill="#ffc233" />
+            <path className="card-tassel" d="M50 13 V25" stroke="#ffc233" strokeWidth="1.8" strokeLinecap="round" />
+            <circle className="card-tassel" cx="50" cy="26" r="2.2" fill="#ffc233" />
+          </g>
+          <path d="M22 34 L27 50 L33 50 L38 34 Z" fill="#ff4d6d" stroke="#c9314c" strokeWidth="1.2" strokeLinejoin="round" />
+          <path d="M38 34 L33 50 L27 50 L22 34 Z" fill="#2f5aa8" opacity=".85" />
           <g className="card-medal-coin">
-            <circle cx="30" cy="40" r="15" fill="#ffc233" stroke="#c47f1c" strokeWidth="2" />
-            <circle cx="30" cy="40" r="10.5" fill="#ffe08a" />
-            <path d={SPARK} transform="translate(30 40) scale(.62)" fill="#c47f1c" />
+            <circle cx="30" cy="55" r="12.5" fill="#ffc233" stroke="#c47f1c" strokeWidth="1.8" />
+            <circle cx="30" cy="55" r="8.6" fill="#ffe08a" />
+            <path d={SPARK} transform="translate(30 55) scale(.5)" fill="#c47f1c" />
           </g>
         </svg>
       </div>

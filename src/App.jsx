@@ -5,13 +5,14 @@ import ReportCard from './components/ReportCard.jsx'
 import StickerBoard from './components/StickerBoard.jsx'
 import Letter from './components/Letter.jsx'
 import ScrollSeal from './components/ScrollSeal.jsx'
+import ChalkDoodles from './components/ChalkDoodles.jsx'
 import useLocalStorage from './useLocalStorage.js'
 import { playCelebrate, playPin } from './celebrate.js'
 
 const LINES = [
-  'Officially pinned and deployed! 🎓',
-  'Your internship classroom is waiting for you. 🍎',
-  'Chalk dust is going to look good on you. ✨',
+  'Officially pinned and deployed! ??',
+  'Your internship classroom is waiting for you. ??',
+  'Chalk dust is going to look good on you. ?',
 ]
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
   const [cardPulse, setCardPulse] = useState(false)
   const fx = useRef(null)
   const revealRef = useRef(null)
+  const revealTimer = useRef(0)
 
   const her = herInput.trim() || 'Future Teacher'
   const me = meInput.trim() || 'Me'
@@ -40,19 +42,20 @@ export default function App() {
     playPin(muted)
     setTimeout(() => {
       fx.current?.burst(60)
-      setVerdict('SUNN pin is on. Now pin the name tag! 🏷️')
+      setVerdict('SUNN pin is on. Now pin the name tag! ???')
     }, 900)
   }
 
   const pinTag = () => {
     if (step !== 1) return
-    // Land the tag, then fire the finale: reveal only when confetti settles.
+    // Land the tag, then fire the finale. Reveal is guaranteed: whichever of the
+    // confetti callback or the fallback timer fires first wins.
     setTimeout(() => {
       setStep(2)
       playCelebrate(muted)
       setVerdict(LINES[0])
+      revealTimer.current = window.setTimeout(() => setShowReveal(true), BURST_SETTLE_MS + 1200)
       fx.current?.burst(180, {
-        duration: BURST_SETTLE_MS + 1200,
         onDone: () => setShowReveal(true),
       })
     }, 900)
@@ -83,25 +86,28 @@ export default function App() {
     return () => clearTimeout(t)
   }, [showReveal])
 
+  useEffect(() => () => clearTimeout(revealTimer.current), [])
+
   return (
     <>
       <div className="chalk-bg" aria-hidden="true">
-        <span className="cb cb-1">Class of 2027 🎓</span>
-        <span className="cb cb-2">PINNING DAY ✨</span>
+        <span className="cb cb-1">Class of 2027 ??</span>
+        <span className="cb cb-2">PINNING DAY ?</span>
         <span className="cb cb-3">You did it!</span>
         <span className="cb cb-4">A+ in everything</span>
-        <span className="cb cb-5">Deployment unlocked 🔓</span>
+        <span className="cb cb-5">Deployment unlocked ??</span>
         <span className="cb cb-6">Chalk dust &amp; dreams</span>
-        <span className="cb cb-7">Future teacher →</span>
+        <span className="cb cb-7">Future teacher ?</span>
         <span className="cb cb-8">Summa cum laude soon</span>
-        <span className="cb cb-9">🎓 🎓 🎓</span>
-        <span className="cb cb-10">A++ ♥</span>
+        <span className="cb cb-9">?? ?? ??</span>
+        <span className="cb cb-10">A++ ?</span>
       </div>
+      <ChalkDoodles />
       <Confetti ref={fx} />
       <ScrollSeal />
       <main className="paper">
         <details className="bar" open>
-          <summary>Personalize ✏️</summary>
+          <summary>Personalize ??</summary>
           <div className="bar-fields">
             <label>
               Your name
@@ -134,8 +140,8 @@ export default function App() {
             <StickerBoard />
             <Letter to={her} from={me} />
 
-            <button className="go" onClick={again}>Celebrate again 🎊</button>
-            <footer>Go get ’em, intern. Date is already set on December 10th, during Lights On in Sagay City. 🥂</footer>
+            <button className="go" onClick={again}>Celebrate Again</button>
+            <footer>Go get �em, intern. Date is already set on December 10th, during Lights On in Sagay City.</footer>
           </div>
         )}
       </main>
