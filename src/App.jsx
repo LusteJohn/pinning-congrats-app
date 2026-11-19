@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import Confetti from './components/Confetti.jsx'
+import Confetti, { BURST_SETTLE_MS } from './components/Confetti.jsx'
 import PinStage from './components/PinStage.jsx'
 import ReportCard from './components/ReportCard.jsx'
 import StickerBoard from './components/StickerBoard.jsx'
 import Letter from './components/Letter.jsx'
+import ScrollSeal from './components/ScrollSeal.jsx'
 import useLocalStorage from './useLocalStorage.js'
+import { playCelebrate, playPin } from './celebrate.js'
 
 const LINES = [
   'Officially pinned and deployed! 🎓',
@@ -16,6 +18,7 @@ export default function App() {
   const [herInput, setHerInput] = useLocalStorage('pinning.her', 'Zenneth Cellon')
   const [meInput, setMeInput] = useLocalStorage('pinning.me', 'My Programmer')
   const [courseInput, setCourseInput] = useLocalStorage('pinning.course', 'BTLED-ICT')
+  const [muted, setMuted] = useLocalStorage('pinning.muted', false)
   const [step, setStep] = useState(0)
   const [showReveal, setShowReveal] = useState(false)
   const [verdict, setVerdict] = useState('')
@@ -34,6 +37,7 @@ export default function App() {
   const pinLogo = () => {
     if (step !== 0) return
     setStep(1)
+    playPin(muted)
     setTimeout(() => {
       fx.current?.burst(60)
       setVerdict('SUNN pin is on. Now pin the name tag! 🏷️')
@@ -42,17 +46,21 @@ export default function App() {
 
   const pinTag = () => {
     if (step !== 1) return
-    // Land pin, fire confetti, then reveal after confetti settles.
+    // Land the tag, then fire the finale: reveal only when confetti settles.
     setTimeout(() => {
       setStep(2)
-      fx.current?.burst(180)
+      playCelebrate(muted)
       setVerdict(LINES[0])
-      setTimeout(() => setShowReveal(true), 3500)
+      fx.current?.burst(180, {
+        duration: BURST_SETTLE_MS + 1200,
+        onDone: () => setShowReveal(true),
+      })
     }, 900)
   }
 
   const again = () => {
     const next = (lineIdx + 1) % LINES.length
+    playCelebrate(muted)
     fx.current?.burst(120)
     setLineIdx(next)
     setVerdict(LINES[next])
@@ -66,7 +74,7 @@ export default function App() {
     return () => clearTimeout(t)
   }, [cardPulse])
 
-  // Scroll the reveal into view once confetti has settled.
+  // Scroll the reveal into view once it mounts (confetti already settled).
   useEffect(() => {
     if (!showReveal) return
     const t = setTimeout(() => {
@@ -90,6 +98,7 @@ export default function App() {
         <span className="cb cb-10">A++ ♥</span>
       </div>
       <Confetti ref={fx} />
+      <ScrollSeal />
       <main className="paper">
         <details className="bar" open>
           <summary>Personalize ✏️</summary>
@@ -130,6 +139,30 @@ export default function App() {
           </div>
         )}
       </main>
+
+      <button
+        className="sound-toggle"
+        onClick={() => setMuted((m) => !m)}
+        aria-pressed={muted}
+        aria-label={muted ? 'Unmute celebration sounds' : 'Mute celebration sounds'}
+        title={muted ? 'Unmute celebration sounds' : 'Mute celebration sounds'}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 9.5 H8 L13 5 V19 L8 14.5 H4 Z" fill="currentColor" />
+          {muted ? (
+            <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M16.5 9.5 L21 14" />
+              <path d="M21 9.5 L16.5 14" />
+            </g>
+          ) : (
+            <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none">
+              <path d="M16 8.5 Q18.5 12 16 15.5" />
+              <path d="M18.5 6 Q22.5 12 18.5 18" opacity=".6" />
+            </g>
+          )}
+        </svg>
+        <span className="sr-only">{muted ? 'Sound off' : 'Sound on'}</span>
+      </button>
     </>
   )
 }
