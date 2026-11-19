@@ -17,6 +17,7 @@ export default function App() {
   const [meInput, setMeInput] = useLocalStorage('pinning.me', 'My Programmer')
   const [courseInput, setCourseInput] = useLocalStorage('pinning.course', 'BTLED-ICT')
   const [step, setStep] = useState(0)
+  const [showReveal, setShowReveal] = useState(false)
   const [verdict, setVerdict] = useState('')
   const [lineIdx, setLineIdx] = useState(0)
   const [cardPulse, setCardPulse] = useState(false)
@@ -28,7 +29,7 @@ export default function App() {
   const course = courseInput.trim() || 'BTLED-ICT'
 
   // Reveal the rest of the story once the pinning ceremony is complete.
-  const revealed = step >= 2
+  const revealed = showReveal
 
   const pinLogo = () => {
     if (step !== 0) return
@@ -41,11 +42,12 @@ export default function App() {
 
   const pinTag = () => {
     if (step !== 1) return
-    setStep(2)
-    // Show the final verdict and confetti after the pin lands.
+    // Land pin, fire confetti, then reveal after confetti settles.
     setTimeout(() => {
+      setStep(2)
       fx.current?.burst(180)
       setVerdict(LINES[0])
+      setTimeout(() => setShowReveal(true), 3500)
     }, 900)
   }
 
@@ -64,17 +66,29 @@ export default function App() {
     return () => clearTimeout(t)
   }, [cardPulse])
 
-  // Scroll the reveal into view only after the confetti (900ms burst + settle) has played.
+  // Scroll the reveal into view once confetti has settled.
   useEffect(() => {
-    if (!revealed) return
+    if (!showReveal) return
     const t = setTimeout(() => {
       revealRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 2500)
+    }, 150)
     return () => clearTimeout(t)
-  }, [revealed])
+  }, [showReveal])
 
   return (
     <>
+      <div className="chalk-bg" aria-hidden="true">
+        <span className="cb cb-1">Class of 2027 🎓</span>
+        <span className="cb cb-2">PINNING DAY ✨</span>
+        <span className="cb cb-3">You did it!</span>
+        <span className="cb cb-4">A+ in everything</span>
+        <span className="cb cb-5">Deployment unlocked 🔓</span>
+        <span className="cb cb-6">Chalk dust &amp; dreams</span>
+        <span className="cb cb-7">Future teacher →</span>
+        <span className="cb cb-8">Summa cum laude soon</span>
+        <span className="cb cb-9">🎓 🎓 🎓</span>
+        <span className="cb cb-10">A++ ♥</span>
+      </div>
       <Confetti ref={fx} />
       <main className="paper">
         <details className="bar" open>
