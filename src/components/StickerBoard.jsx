@@ -1,13 +1,12 @@
 import useLocalStorage from '../useLocalStorage.js'
 import useReveal from '../useReveal.js'
-
-const TRAY = ['🍎', '🎓', '📚', '✏️', '⭐', '💛', '🎉', '🌸', '🎊', '🥳', '🏅', '👏', '🌟', '✨', '💐', '🎈']
+import { STICKER_KEYS, STICKERS, StickerIcon } from './StickerIcons.jsx'
 
 // A few stickers already on the board so it never looks empty on first load.
 const SEED = [
-  { id: 'seed-1', emoji: '🎓', x: 16, y: 20, tilt: -14 },
-  { id: 'seed-2', emoji: '💛', x: 74, y: 26, tilt: 12 },
-  { id: 'seed-3', emoji: '🍎', x: 46, y: 62, tilt: -6 },
+  { id: 'seed-1', icon: 'cap', x: 16, y: 20, tilt: -14 },
+  { id: 'seed-2', icon: 'heart', x: 74, y: 26, tilt: 12 },
+  { id: 'seed-3', icon: 'star', x: 46, y: 62, tilt: -6 },
 ]
 
 const rand = (min, range) => Math.random() * range + min
@@ -18,16 +17,46 @@ const uid = () =>
   (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function' && crypto.randomUUID()) ||
   `s-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 
+const label = (icon) => STICKERS[icon]?.label ?? 'Sticker'
+
 export default function StickerBoard() {
   const [stickers, setStickers] = useLocalStorage('pinning.stickers', SEED)
-  const [pick, setPick] = useLocalStorage('pinning.pick', '🍎')
+  const [pick, setPick] = useLocalStorage('pinning.pick', 'star')
   const [ref, shown] = useReveal()
 
+  // Older saved boards used emoji strings; map them to the new icon keys.
+  const legacyIcon = (emoji) =>
+    ({
+      '🎓': 'cap',
+      '💛': 'heart',
+      '❤️': 'heart',
+      '🍎': 'flower',
+      '📚': 'trophy',
+      '✏️': 'music',
+      '⭐': 'star',
+      '🌟': 'star',
+      '🎉': 'party',
+      '🎊': 'party',
+      '🥳': 'clap',
+      '👏': 'clap',
+      '🏅': 'medal',
+      '✨': 'firework',
+      '💐': 'flower',
+      '🌸': 'flower',
+      '🎈': 'balloon',
+      '🌈': 'rainbow',
+    })[emoji] ?? 'star'
+
+  const placed = stickers.map((s) => ({
+    ...s,
+    icon: s.icon ?? legacyIcon(s.emoji),
+  }))
+
   // Keep coordinates inside the board so stickers never clip at the edges.
-  const add = (emoji, x, y) =>
+  const add = (icon, x, y) =>
     setStickers((list) => [
       ...list,
-      { id: uid(), emoji, x: clamp(x, 2, 90), y: clamp(y, 2, 86), tilt: rand(-20, 40) },
+      { id: uid(), icon, x: clamp(x, 2, 86), y: clamp(y, 2, 82), tilt: rand(-20, 40) },
     ])
 
   const undo = () => setStickers((list) => list.slice(0, -1))
@@ -35,13 +64,13 @@ export default function StickerBoard() {
 
   const onBoardClick = (e) => {
     const r = e.currentTarget.getBoundingClientRect()
-    add(pick, ((e.clientX - r.left) / r.width) * 100 - 4, ((e.clientY - r.top) / r.height) * 100 - 8)
+    add(pick, ((e.clientX - r.left) / r.width) * 100 - 6, ((e.clientY - r.top) / r.height) * 100 - 10)
   }
 
   const onKey = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
-      add(pick, rand(10, 70), rand(10, 60))
+      add(pick, rand(10, 66), rand(10, 56))
     }
   }
 
@@ -49,26 +78,30 @@ export default function StickerBoard() {
     <section ref={ref} className={`sec-board enter${shown ? ' in' : ''}`}>
       <h2>Decorate the board</h2>
       <div className="board" role="button" tabIndex={0} aria-label="Tap to drop a sticker" onClick={onBoardClick} onKeyDown={onKey}>
-        {stickers.length === 0 && <p>Tap an emoji below, then tap anywhere here to stick it.</p>}
-        {stickers.map((s) => (
-          <span key={s.id} className="stick" style={{ left: `${s.x}%`, top: `${s.y}%`, transform: `rotate(${s.tilt}deg)` }}>
-            {s.emoji}
+        {placed.length === 0 && <p>Pick a sticker below, then tap anywhere here to stick it.</p>}
+        {placed.map((s) => (
+          <span
+            key={s.id}
+            className="stick"
+            style={{ left: `${s.x}%`, top: `${s.y}%`, transform: `rotate(${s.tilt}deg)` }}
+          >
+            <StickerIcon name={s.icon} size={54} />
           </span>
         ))}
       </div>
       <div className="tray">
-        {TRAY.map((emoji) => (
+        {STICKER_KEYS.map((icon) => (
           <button
-            key={emoji}
+            key={icon}
             className="e"
-            aria-label={`Choose sticker ${emoji}`}
-            aria-pressed={pick === emoji}
+            aria-label={`Choose sticker ${label(icon)}`}
+            aria-pressed={pick === icon}
             onClick={() => {
-              setPick(emoji)
-              add(emoji, rand(10, 70), rand(10, 60))
+              setPick(icon)
+              add(icon, rand(10, 66), rand(10, 56))
             }}
           >
-            {emoji}
+            <StickerIcon name={icon} size={40} />
           </button>
         ))}
       </div>
