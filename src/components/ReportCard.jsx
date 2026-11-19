@@ -2,11 +2,12 @@ import useReveal from '../useReveal.js'
 
 const ROWS = [
   ['Patience with tiny humans, in a way.', 'A+++'],
-  ['Lesson plans at late night', 'A+'],
   ['Surviving every exam and requirement', 'A+'],
   ['Explaining it one more time, kindly', 'A++'],
-  ['Acing the final defense', 'A+++'],
+  ['Lesson plans at late night', 'A+'],
   ['Nailing your microdemo', 'A+++'],
+  ['Completed FS and all the requirements', 'A+++'],
+  ['Acing the final defense', 'A+++'],
   ['Making me proud', 'off the chart'],
 ]
 
